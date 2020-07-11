@@ -4,6 +4,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 FirebaseAuth auth = FirebaseAuth.instance;
 final gooleSignIn = GoogleSignIn();
 
+// many unhandled google error exist
+// will push them soon
 Future<bool> googleSignIn() async {
   GoogleSignInAccount googleSignInAccount = await gooleSignIn.signIn();
 
@@ -38,6 +40,7 @@ Future<bool> signin(String email, String password) async {
   }
 }
 
+// change to Future<FirebaseUser> for returning a user
 Future<bool> signUp(String email, String password) async {
   try {
     AuthResult result = await auth.createUserWithEmailAndPassword(
@@ -49,8 +52,10 @@ Future<bool> signUp(String email, String password) async {
       case 'ERROR_EMAIL_ALREADY_IN_USE':
         print('serror');
     }
+    
   }
 }
+
 
 Future<bool> signOutUser() async {
   FirebaseUser user = await auth.currentUser();
