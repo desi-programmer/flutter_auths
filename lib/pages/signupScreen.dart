@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_auths/controllers/authentications.dart';
 import 'package:flutter_auths/pages/loginScreen.dart';
 import 'package:flutter_auths/pages/tasks.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -13,6 +14,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String email;
   String password;
   GlobalKey<FormState> formkey = GlobalKey<FormState>();
+
+  void handleSignup() {
+    if (formkey.currentState.validate()) {
+      formkey.currentState.save();
+      signUp(email.trim(), password, context).then((value) {
+        if (value != null) {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TasksPage(uid: value.uid),
+              ));
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,29 +73,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           decoration: InputDecoration(
                               border: OutlineInputBorder(),
                               labelText: "Password"),
-                          validator: (_val) {
-                            if (_val.isEmpty) {
-                              return "Can't be empty";
-                            } else {
-                              return null;
-                            }
-                          },
+                          validator: MultiValidator([
+                            RequiredValidator(
+                                errorText: "This Field Is Required."),
+                            MinLengthValidator(6,
+                                errorText: "Minimum 6 Characters Required.")
+                          ]),
                           onChanged: (val) {
                             password = val;
                           },
                         ),
                       ),
                       RaisedButton(
-                        onPressed: () =>
-                            signUp(email.trim(), password).whenComplete(() async {
-                          FirebaseUser user =
-                              await FirebaseAuth.instance.currentUser();
-
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      TasksPage(uid: user.uid)));
-                        }),
+                        onPressed: handleSignup,
                         color: Colors.green,
                         textColor: Colors.white,
                         child: Text(

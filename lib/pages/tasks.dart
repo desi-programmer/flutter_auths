@@ -55,7 +55,6 @@ class _TasksPageState extends State<TasksPage> {
                   if (formkey.currentState.validate()) {
                     formkey.currentState.save();
                     if (isUpdate) {
-                      //
                       taskcollections
                           .document(uid)
                           .collection('task')
@@ -107,11 +106,11 @@ class _TasksPageState extends State<TasksPage> {
             icon: Icon(Icons.exit_to_app),
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
-            onPressed: () => signOutUser().whenComplete(
-              () => () => Navigator.of(context).pushAndRemoveUntil(
+            onPressed: () => signOutUser().then((value) {
+              Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => HomePage()),
-                  (Route<dynamic> route) => false),
-            ),
+                  (Route<dynamic> route) => false);
+            }),
           ),
         ],
       ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_auths/controllers/authentications.dart';
 import 'package:flutter_auths/pages/signupScreen.dart';
 import 'package:flutter_auths/pages/tasks.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -10,10 +11,24 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   String email;
   String password;
   GlobalKey<FormState> formkey = GlobalKey<FormState>();
+
+  void login() {
+    if (formkey.currentState.validate()) {
+      formkey.currentState.save();
+      signin(email, password, context).then((value) {
+        if (value != null) {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TasksPage(uid: value.uid),
+              ));
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +37,9 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              FlutterLogo(),
+              FlutterLogo(
+                size: 50.0,
+              ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 20.0),
                 child: Text(
@@ -39,48 +56,38 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     children: <Widget>[
                       TextFormField(
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(), labelText: "Email"),
-                          validator: (_val) {
-                            if (_val.isEmpty) {
-                              return "Can't be empty";
-                            } else {
-                              return null;
-                            }
-                          },
-                          onChanged: (val){
-                            email = val;
-                          },
-                          ),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(), labelText: "Email"),
+                        validator: MultiValidator([
+                          RequiredValidator(
+                              errorText: "This Field Is Required"),
+                          EmailValidator(errorText: "Invalid Email Address"),
+                        ]),
+                        onChanged: (val) {
+                          email = val;
+                        },
+                      ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 15.0),
                         child: TextFormField(
                           obscureText: true,
                           decoration: InputDecoration(
-                              border: OutlineInputBorder(), labelText: "Password"),
-                          validator: (_val) {
-                            if (_val.isEmpty) {
-                              return "Can't be empty";
-                            } else {
-                              return null;
-                            }
-                          },
-                          onChanged: (val){
+                              border: OutlineInputBorder(),
+                              labelText: "Password"),
+                          validator: MultiValidator([
+                            RequiredValidator(
+                                errorText: "Password Is Required"),
+                            MinLengthValidator(6,
+                                errorText: "Minimum 6 Characters Required"),
+                          ]),
+                          onChanged: (val) {
                             password = val;
                           },
                         ),
                       ),
                       RaisedButton(
-                        onPressed: () => signin(email.trim(), password).whenComplete(() async {
-
-                    FirebaseUser user = await FirebaseAuth.instance.currentUser();
-
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => TasksPage(uid : user.uid))
-                    );
-                    }
-                
-                        ),
+                        // passing an additional context parameter to show dialog boxs
+                        onPressed: login,
                         color: Colors.green,
                         textColor: Colors.white,
                         child: Text(
@@ -94,14 +101,11 @@ class _LoginScreenState extends State<LoginScreen> {
               MaterialButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => googleSignIn().whenComplete(() async {
+                  FirebaseUser user = await FirebaseAuth.instance.currentUser();
 
-                    FirebaseUser user = await FirebaseAuth.instance.currentUser();
-
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => TasksPage(uid : user.uid))
-                    );
-                    }
-                ),
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) => TasksPage(uid: user.uid)));
+                }),
                 child: Image(
                   image: AssetImage('assets/signin.png'),
                   width: 200.0,
@@ -111,10 +115,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 10.0,
               ),
               InkWell(
-                onTap: (){
+                onTap: () {
                   // send to login screen
-                   Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => SignUpScreen()));
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => SignUpScreen()));
                 },
                 child: Text(
                   "Sign Up Here",
