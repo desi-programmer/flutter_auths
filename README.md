@@ -1,8 +1,5 @@
 
-# Flutter Authentications
-
-
-# Star It And Follow For Updates.. Will Push Them Soon
+# Flutter Authentication
 
 # Changelog 01
 
