@@ -2,7 +2,7 @@
 # Flutter Authentication
 
 # UPDATE
-` As this was posted long ago, Recent updates to Flutter and firebase make this moot. (Rendered unimportant by recent events.)
+` As this was posted long ago, Recent updates to Flutter and firebase make this moot. (Rendered unimportant by recent events.). `
 
 # Changelog 01
 
